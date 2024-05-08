@@ -5,7 +5,7 @@ from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 import numpy as np
 import pyrr
-from planets import CelestialObject, MovingObject
+from planets import CelestialObject, MovingObject, Orbit
 
 
 class OpenGLWindow:
@@ -107,7 +107,11 @@ class OpenGLWindow:
         self.shader = self.loadShaderProgram(
             "./shaders/simple.vert", "./shaders/simple.frag"
         )
-        glUseProgram(self.shader)
+        self.planet_shader = self.loadShaderProgram(
+            "./shaders/planet.vert", "./shaders/planet.frag"
+        )
+        # glUseProgram(self.shader)
+        glUseProgram(self.planet_shader)
 
         # colorLoc = glGetUniformLocation(self.shader, "objectColor")
         # glUniform3f(colorLoc, 1.0, 1.0, 1.0)
@@ -120,16 +124,21 @@ class OpenGLWindow:
         # self.cube = Geometry('./resources/cube.obj')
 
         projection = pyrr.matrix44.create_perspective_projection(
-            fovy=45, aspect=640 / 480, near=0.1, far=100, dtype=np.float32
+            fovy=45,
+            aspect=screen_width / screen_height,
+            near=0.1,
+            far=100,
+            dtype=np.float32,
         )
         glUniformMatrix4fv(
-            glGetUniformLocation(self.shader, "projection"),
+            glGetUniformLocation(self.planet_shader, "projection"),
             1,
             GL_FALSE,
             projection,
         )
 
-        CelestialObject.sphere_shader = self.shader
+        Orbit.shader = self.planet_shader
+        CelestialObject.sphere_shader = self.planet_shader
 
         self.earth = MovingObject(*EARTH)
         self.moon = MovingObject(*MOON)
@@ -139,17 +148,9 @@ class OpenGLWindow:
 
     def render(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glUseProgram(self.shader)  # You may not need this line
+        glUseProgram(self.planet_shader)  # You may not need this line
 
-        self.setup_camera(self.shader)
-        print("earth")
-
-        # Uncomment this for triangle rendering
-        # glDrawArrays(GL_TRIANGLES, 0, self.triangle.vertexCount)
-
-        # Uncomment this for model rendering
-        # glDrawArrays(GL_TRIANGLES, 0, self.cube.vertexCount)
-        # glDrawArrays(GL_TRIANGLES, 0, self.sphere.vertexCount)
+        self.setup_camera(self.planet_shader)
 
         self.sun.render()
         self.earth.render()
