@@ -134,3 +134,37 @@ class Moon(MovingObject):
     @property
     def position(self):
         return self.planet.position + self.calculate_position()
+
+
+class Sun(CelestialObject):
+    speed: int = 15
+
+    def __init__(self, shader, size):
+        super().__init__(size, "SUN", shader)
+        self.rotation_angle = 0
+        self.rotation_period = 38
+        self.inclination_angle = np.radians(7.25)
+
+    @classmethod
+    def set_speed(cls, value: int):
+        if value > 1:
+            cls.speed = value
+        else:
+            cls.speed = 1
+
+    def render(self):
+        self.rotation_angle -= 2 * np.pi / (self.rotation_period * Sun.speed)
+        if self.rotation_angle < -2 * np.pi:
+            self.rotation_angle += 2 * np.pi
+
+        # Calculate rotation matrices for inclination and rotation
+        inclination_rotation = pyrr.Matrix44.from_z_rotation(self.inclination_angle)
+        self_rotation = pyrr.Matrix44.from_y_rotation(self.rotation_angle)
+
+        # Combine the rotation matrices
+        rotation_matrix = inclination_rotation * self_rotation
+
+        self.size = translate_object(SIZES[self.name], np.array([0, 0, 0]))
+        self.size = np.dot(rotation_matrix, self.size)
+
+        super().render()

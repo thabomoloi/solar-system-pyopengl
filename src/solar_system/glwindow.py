@@ -6,7 +6,7 @@ from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 import numpy as np
 import pyrr
-from solar_system.planet_scene.planets import CelestialObject, Moon, Planet
+from solar_system.planet_scene.planets import Sun, Moon, Planet
 
 
 class OpenGLWindow:
@@ -145,7 +145,7 @@ class OpenGLWindow:
 
         self.earth = Planet(self.shader, *EARTH)
         self.moon = Moon(self.shader, *MOON, self.earth)
-        self.sun = CelestialObject(SIZES["SUN"], "SUN", self.shader)
+        self.sun = Sun(self.shader, SIZES["SUN"])
 
         print("Setup complete!")
 
