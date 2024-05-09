@@ -1,12 +1,11 @@
 #version 330 core
 
-in vec2 fragTextureCoord;
+in vec3 textureCoord;
 
-uniform sampler2D planetTexture;
+uniform samplerCube sphere;
 
-out vec4 color;
-
+out vec4 FragColor;
 void main()
 {
-    color = texture(planetTexture, fragTextureCoord);
+    FragColor = texture(sphere, textureCoord);
 }

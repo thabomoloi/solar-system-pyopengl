@@ -3,7 +3,7 @@ import os
 os.environ["SDL_VIDEO_X11_FORCE_EGL"] = "1"
 
 import pygame as pg
-from GLWindow import *
+from solar_system.glwindow import OpenGLWindow
 
 
 def main():
@@ -23,15 +23,19 @@ def main():
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 running = False
-            elif event.type == pg.KEYDOWN:
-                if event.key == pg.K_UP:
-                    window.rotate_camera("up")
-                elif event.key == pg.K_DOWN:
-                    window.rotate_camera("down")
-                elif event.key == pg.K_LEFT:
-                    window.rotate_camera("left")
-                elif event.key == pg.K_RIGHT:
-                    window.rotate_camera("right")
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_x and pg.key.get_mods() & pg.KMOD_CTRL:
+                    window.rotate_camera("x", "anticlockwise")
+                elif event.key == pg.K_x:
+                    window.rotate_camera("x", "clockwise")
+                elif event.key == pg.K_y and pg.key.get_mods() & pg.KMOD_CTRL:
+                    window.rotate_camera("y", "anticlockwise")
+                elif event.key == pg.K_y:
+                    window.rotate_camera("y", "clockwise")
+                elif event.key == pg.K_z and pg.key.get_mods() & pg.KMOD_CTRL:
+                    window.rotate_camera("z", "anticlockwise")
+                elif event.key == pg.K_z:
+                    window.rotate_camera("z", "clockwise")
 
     pg.quit()
 
