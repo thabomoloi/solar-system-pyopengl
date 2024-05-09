@@ -6,7 +6,7 @@ from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 import numpy as np
 import pyrr
-from solar_system.planet_scene.planets import Sun, Moon, Planet
+from solar_system.planet_scene.planets import Sun, Moon, Planet, MovingObject
 
 
 class OpenGLWindow:
@@ -16,10 +16,8 @@ class OpenGLWindow:
         self.sun = None
         self.earth = None
         self.moon = None
-        self.speed = 1.0
-        self.rotation_x = 0.0
-        self.rotation_y = 0.0
-
+        self.speed = 0.01
+        self.speed_step = 0.001
         self.camera_position = pyrr.Vector3([0.0, 0.0, -10.0])
         self.camera_target = pyrr.Vector3([0.0, 0.0, 0.0])
         self.camera_up = pyrr.Vector3([0.0, 1.0, 0.0])
@@ -28,7 +26,19 @@ class OpenGLWindow:
         self.camera_yaw = 0.0  # Initial yaw angle
         self.camera_roll = 0.0
 
-    # Your existing code...
+    def update_speeds(self):
+        Sun.set_speed(self.speed)
+        MovingObject.set_speed(self.speed)
+
+    def increase_speed(self):
+        self.speed += self.speed_step
+        self.update_speeds()
+
+    def decrease_speed(self):
+        self.speed -= self.speed_step
+        if self.speed < 0:
+            self.speed = 0
+        self.update_speeds()
 
     def setup_camera(self, shader):
         # Convert camera orientation angles to rotation matrices

@@ -7,7 +7,7 @@ from solar_system.planet_scene.celestial_object import CelestialObject
 
 
 class MovingObject(CelestialObject):
-    speed: int = 15
+    speed: int = 0.01
 
     def __init__(
         self,
@@ -33,10 +33,10 @@ class MovingObject(CelestialObject):
 
     @classmethod
     def set_speed(cls, value: int):
-        if value > 1:
+        if value > 0:
             cls.speed = value
         else:
-            cls.speed = 1
+            cls.speed = 0
 
     @property
     def position(self):
@@ -54,15 +54,11 @@ class MovingObject(CelestialObject):
 
     def render(self):
         if self.rotation_direction == "anticlockwise":
-            self.rotation_angle -= (
-                2 * np.pi / (self.rotation_period * MovingObject.speed)
-            )
+            self.rotation_angle -= 2 * np.pi * MovingObject.speed / self.rotation_period
             if self.rotation_angle < -2 * np.pi:
                 self.rotation_angle += 2 * np.pi
         else:
-            self.rotation_angle += (
-                2 * np.pi / (self.rotation_period * MovingObject.speed)
-            )
+            self.rotation_angle += 2 * np.pi * MovingObject.speed / self.rotation_period
             if self.rotation_angle > 2 * np.pi:
                 self.rotation_angle -= 2 * np.pi
 
@@ -75,7 +71,7 @@ class MovingObject(CelestialObject):
 
         self.size = translate_object(SIZES[self.name], self.position)
         self.size = np.dot(rotation_matrix, self.size)
-        self.angle += 2 * np.pi / (self.orbit_period * MovingObject.speed)
+        self.angle += 2 * np.pi * MovingObject.speed / self.orbit_period
         if self.angle > 2 * np.pi:
             self.angle -= 2 * np.pi
 
@@ -137,7 +133,7 @@ class Moon(MovingObject):
 
 
 class Sun(CelestialObject):
-    speed: int = 15
+    speed: int = 0.01
 
     def __init__(self, shader, size):
         super().__init__(size, "SUN", shader)
@@ -147,13 +143,13 @@ class Sun(CelestialObject):
 
     @classmethod
     def set_speed(cls, value: int):
-        if value > 1:
+        if value > 0:
             cls.speed = value
         else:
-            cls.speed = 1
+            cls.speed = 0
 
     def render(self):
-        self.rotation_angle -= 2 * np.pi / (self.rotation_period * Sun.speed)
+        self.rotation_angle -= 2 * np.pi * Sun.speed / self.rotation_period
         if self.rotation_angle < -2 * np.pi:
             self.rotation_angle += 2 * np.pi
 
