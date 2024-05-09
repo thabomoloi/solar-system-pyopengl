@@ -1,17 +1,17 @@
-from constants import *
-from helpers import *
+from typing import Literal
+from solar_system.constants import *
+from solar_system.helpers import *
 import pygame as pg
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 import numpy as np
 import pyrr
-from planets import CelestialObject, MovingObject, Orbit
+from solar_system.planet_scene.planets import CelestialObject, Moon, Planet
 
 
 class OpenGLWindow:
 
     def __init__(self):
-        self.triangle = None
         self.clock = pg.time.Clock()
         self.sun = None
         self.earth = None
@@ -26,45 +26,64 @@ class OpenGLWindow:
         self.camera_distance = 10.0  # Initial distance from target
         self.camera_pitch = 0.0  # Initial pitch angle
         self.camera_yaw = 0.0  # Initial yaw angle
+        self.camera_roll = 0.0
 
     # Your existing code...
 
     def setup_camera(self, shader):
-        view = pyrr.matrix44.create_look_at(
-            self.camera_position,
+        # Convert camera orientation angles to rotation matrices
+        rotation_x = pyrr.Matrix44.from_x_rotation(self.camera_pitch)
+        rotation_y = pyrr.Matrix44.from_y_rotation(self.camera_yaw)
+        rotation_z = pyrr.Matrix44.from_z_rotation(self.camera_roll)
+
+        # Combine the rotation matrices to get the final orientation matrix
+        orientation_matrix = rotation_x * rotation_y * rotation_z
+
+        # Calculate the camera position based on the orientation and distance from target
+        camera_position = self.camera_target + orientation_matrix * pyrr.Vector3(
+            [0.0, 0.0, -self.camera_distance]
+        )
+
+        camera_up = rotation_z * self.camera_up
+        # Create the view matrix using the calculated camera position, target, and up vector
+        view_matrix = pyrr.matrix44.create_look_at(
+            camera_position,
             target=self.camera_target,
-            up=self.camera_up,
+            up=camera_up,
             dtype=np.float32,
         )
 
+        # Set the view matrix in the shader
         glUniformMatrix4fv(
             glGetUniformLocation(shader, "view"),
             1,
             GL_FALSE,
-            view,
+            view_matrix,
         )
 
-    def rotate_camera(self, direction):
-        step = 1.0  # Increment for camera rotation
-        if direction == "up":
-            self.camera_pitch += step
-        elif direction == "down":
-            self.camera_pitch -= step
-        elif direction == "left":
-            self.camera_yaw += step
-        elif direction == "right":
-            self.camera_yaw -= step
+    def rotate_camera(
+        self,
+        axis: Literal["x", "y", "z"],
+        direction: Literal["clockwise", "anticlockwise"] = "clockwise",
+    ):
 
-        # Calculate new camera position based on pitch and yaw
-        self.camera_position[0] = self.camera_target[0] + self.camera_distance * np.cos(
-            np.radians(self.camera_pitch)
-        ) * np.sin(np.radians(self.camera_yaw))
-        self.camera_position[1] = self.camera_target[1] + self.camera_distance * np.sin(
-            np.radians(self.camera_pitch)
-        )
-        self.camera_position[2] = self.camera_target[2] + self.camera_distance * np.cos(
-            np.radians(self.camera_pitch)
-        ) * np.cos(np.radians(self.camera_yaw))
+        step = np.pi / 90  # Convert 1 degree to radians
+
+        if axis == "x":
+            if direction == "clockwise":
+                self.camera_pitch += step
+            else:
+                self.camera_pitch -= step
+        elif axis == "y":
+            if direction == "clockwise":
+                self.camera_yaw += step
+            else:
+                self.camera_yaw -= step
+        else:
+            if direction == "clockwise":
+                self.camera_roll += step
+            else:
+                self.camera_roll -= step
 
     def loadShaderProgram(self, vertex, fragment):
         with open(vertex, "r") as f:
@@ -105,52 +124,35 @@ class OpenGLWindow:
         # You will need change the filepath if you are running the script from inside ./src/
 
         self.shader = self.loadShaderProgram(
-            "./shaders/simple.vert", "./shaders/simple.frag"
-        )
-        self.planet_shader = self.loadShaderProgram(
             "./shaders/planet.vert", "./shaders/planet.frag"
         )
         # glUseProgram(self.shader)
-        glUseProgram(self.planet_shader)
-
-        # colorLoc = glGetUniformLocation(self.shader, "objectColor")
-        # glUniform3f(colorLoc, 1.0, 1.0, 1.0)
-        # glUniform1i(glGetUniformLocation(self.shader, "imageTexture"), 0)
-
-        # Uncomment this for triangle rendering
-        # self.triangle = Triangle(self.shader)
-
-        # Uncomment this for model rendering
-        # self.cube = Geometry('./resources/cube.obj')
+        glUseProgram(self.shader)
 
         projection = pyrr.matrix44.create_perspective_projection(
-            fovy=45,
+            fovy=30,
             aspect=screen_width / screen_height,
             near=0.1,
             far=100,
             dtype=np.float32,
         )
         glUniformMatrix4fv(
-            glGetUniformLocation(self.planet_shader, "projection"),
+            glGetUniformLocation(self.shader, "projection"),
             1,
             GL_FALSE,
             projection,
         )
 
-        Orbit.shader = self.planet_shader
-        CelestialObject.sphere_shader = self.planet_shader
-
-        self.earth = MovingObject(*EARTH)
-        self.moon = MovingObject(*MOON)
-        self.sun = CelestialObject(SIZES["SUN"])
+        self.earth = Planet(self.shader, *EARTH)
+        self.moon = Moon(self.shader, *MOON, self.earth)
+        self.sun = CelestialObject(SIZES["SUN"], "SUN", self.shader)
 
         print("Setup complete!")
 
     def render(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glUseProgram(self.planet_shader)  # You may not need this line
 
-        self.setup_camera(self.planet_shader)
+        self.setup_camera(self.shader)
 
         self.sun.render()
         self.earth.render()
@@ -162,10 +164,6 @@ class OpenGLWindow:
 
     def cleanup(self):
         glDeleteVertexArrays(1, (self.vao,))
-        # Uncomment for triangle rendering
-        # self.triangle.cleanup()
-        # Uncomment for model rendering
-        # self.cube.cleanup()
         self.sun.cleanup()
         self.earth.cleanup()
         self.moon.cleanup()
