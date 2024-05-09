@@ -11,7 +11,6 @@ def main():
     window.initGL()
     running = True
     paused = False
-    speed = 1.0  # Initial speed
 
     clock = pg.time.Clock()  # Create a clock object to control the frame rate
     while running:
@@ -36,6 +35,10 @@ def main():
                     window.rotate_camera("z", "anticlockwise")
                 elif event.key == pg.K_z:
                     window.rotate_camera("z", "clockwise")
+                elif event.key == pg.K_UP:
+                    window.increase_speed()
+                elif event.key == pg.K_DOWN:
+                    window.decrease_speed()
 
     pg.quit()
 
