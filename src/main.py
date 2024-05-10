@@ -7,8 +7,16 @@ from solar_system.glwindow import OpenGLWindow
 
 
 def main():
+    pg.init()
+    # Get display info
+    info = pg.display.Info()
+
+    # Get screen width and height
+    screen_width = info.current_w - 128
+    screen_height = info.current_h - 128
+
     window = OpenGLWindow()
-    window.initGL()
+    window.initGL(screen_width=screen_width, screen_height=screen_height)
     running = True
     paused = False
 
@@ -35,6 +43,10 @@ def main():
                     window.rotate_camera("z", "anticlockwise")
                 elif event.key == pg.K_z:
                     window.rotate_camera("z", "clockwise")
+                elif event.key == pg.K_UP and pg.key.get_mods() & pg.KMOD_CTRL:
+                    window.zoom_in()
+                elif event.key == pg.K_DOWN and pg.key.get_mods() & pg.KMOD_CTRL:
+                    window.zoom_out()
                 elif event.key == pg.K_UP:
                     window.increase_speed()
                 elif event.key == pg.K_DOWN:

@@ -14,10 +14,10 @@ class OpenGLWindow:
     def __init__(self):
         self.clock = pg.time.Clock()
         self.sun = None
-        self.earth = None
+        self.planets = []
         self.moon = None
         self.speed = 0.01
-        self.speed_step = 0.001
+        self.speed_step = 0.01
         self.camera_position = pyrr.Vector3([0.0, 0.0, -10.0])
         self.camera_target = pyrr.Vector3([0.0, 0.0, 0.0])
         self.camera_up = pyrr.Vector3([0.0, 1.0, 0.0])
@@ -25,6 +25,9 @@ class OpenGLWindow:
         self.camera_pitch = 0.0  # Initial pitch angle
         self.camera_yaw = 0.0  # Initial yaw angle
         self.camera_roll = 0.0
+        self.fov = 90
+        self.screen_width = (0,)
+        self.screen_height = (0,)
 
     def update_speeds(self):
         Sun.set_speed(self.speed)
@@ -40,7 +43,31 @@ class OpenGLWindow:
             self.speed = 0
         self.update_speeds()
 
+    def zoom_in(self):
+        self.fov -= 15
+        if self.fov < 0:
+            self.fov = 0
+
+    def zoom_out(self):
+        self.fov += 15
+        if self.fov > 360:
+            self.fov = 360
+
     def setup_camera(self, shader):
+        projection = pyrr.matrix44.create_perspective_projection(
+            fovy=self.fov,
+            aspect=self.screen_width / self.screen_height,
+            near=0.1,
+            far=75,
+            dtype=np.float32,
+        )
+        glUniformMatrix4fv(
+            glGetUniformLocation(self.shader, "projection"),
+            1,
+            GL_FALSE,
+            projection,
+        )
+
         # Convert camera orientation angles to rotation matrices
         rotation_x = pyrr.Matrix44.from_x_rotation(self.camera_pitch)
         rotation_y = pyrr.Matrix44.from_y_rotation(self.camera_yaw)
@@ -110,7 +137,8 @@ class OpenGLWindow:
         return shader
 
     def initGL(self, screen_width=640, screen_height=480):
-        pg.init()
+        self.screen_width = screen_width
+        self.screen_height = screen_height
 
         pg.display.gl_set_attribute(
             pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE
@@ -138,24 +166,15 @@ class OpenGLWindow:
         )
         # glUseProgram(self.shader)
         glUseProgram(self.shader)
+        self.setup_camera(self.shader)
 
-        projection = pyrr.matrix44.create_perspective_projection(
-            fovy=30,
-            aspect=screen_width / screen_height,
-            near=0.1,
-            far=100,
-            dtype=np.float32,
-        )
-        glUniformMatrix4fv(
-            glGetUniformLocation(self.shader, "projection"),
-            1,
-            GL_FALSE,
-            projection,
-        )
-
-        self.earth = Planet(self.shader, *EARTH)
-        self.moon = Moon(self.shader, *MOON, self.earth)
         self.sun = Sun(self.shader, SIZES["SUN"])
+
+        for name, details in PLANETS.items():
+            planet = Planet(self.shader, *details)
+            if name == "EARTH":
+                self.moon = Moon(self.shader, *MOON, planet)
+            self.planets.append(planet)
 
         print("Setup complete!")
 
@@ -165,8 +184,9 @@ class OpenGLWindow:
         self.setup_camera(self.shader)
 
         self.sun.render()
-        self.earth.render()
         self.moon.render()
+        for planet in self.planets:
+            planet.render()
 
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
         # Onto the screen (whereas previously it only existed in memory)
@@ -175,5 +195,6 @@ class OpenGLWindow:
     def cleanup(self):
         glDeleteVertexArrays(1, (self.vao,))
         self.sun.cleanup()
-        self.earth.cleanup()
         self.moon.cleanup()
+        for planet in self.planets:
+            planet.cleanup()
