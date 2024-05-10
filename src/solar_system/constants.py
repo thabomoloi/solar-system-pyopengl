@@ -3,15 +3,15 @@ import pyrr
 SPHERE_FILE = "./resources/sphere.obj"
 
 SIZE_VECTORS = {
-    "SUN": [1.5] * 3,
-    "MERCURY": [0.5] * 3,
-    "VENUS": [0.60] * 3,
-    "EARTH": [0.625] * 3,
-    "MARS": [0.55] * 3,
-    "JUPITER": [1] * 3,
-    "SATURN": [0.9] * 3,
-    "URANUS": [0.8] * 3,
-    "NEPTUNE": [0.775] * 3,
+    "SUN": [1] * 3,
+    "MERCURY": [0.4] * 3,
+    "VENUS": [0.475] * 3,
+    "EARTH": [0.50] * 3,
+    "MARS": [0.425] * 3,
+    "JUPITER": [0.75] * 3,
+    "SATURN": [0.65] * 3,
+    "URANUS": [0.6] * 3,
+    "NEPTUNE": [0.55] * 3,
     "MOON": [0.2] * 3,
 }
 

@@ -51,6 +51,18 @@ def main():
                     window.increase_speed()
                 elif event.key == pg.K_DOWN:
                     window.decrease_speed()
+                elif event.key == pg.K_LEFT and pg.key.get_mods() & pg.KMOD_CTRL:
+                    window.navigate_down()
+                elif event.key == pg.K_RIGHT and pg.key.get_mods() & pg.KMOD_CTRL:
+                    window.navigate_up()
+                elif event.key == pg.K_LEFT and pg.key.get_mods() & pg.KMOD_SHIFT:
+                    window.navigate_back()
+                elif event.key == pg.K_RIGHT and pg.key.get_mods() & pg.KMOD_SHIFT:
+                    window.navigate_front()
+                elif event.key == pg.K_LEFT:
+                    window.navigate_left()
+                elif event.key == pg.K_RIGHT:
+                    window.navigate_right()
 
     pg.quit()
 

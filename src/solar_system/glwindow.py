@@ -18,7 +18,6 @@ class OpenGLWindow:
         self.moon = None
         self.speed = 0.01
         self.speed_step = 0.01
-        self.camera_position = pyrr.Vector3([0.0, 0.0, -10.0])
         self.camera_target = pyrr.Vector3([0.0, 0.0, 0.0])
         self.camera_up = pyrr.Vector3([0.0, 1.0, 0.0])
         self.camera_distance = 10.0  # Initial distance from target
@@ -44,14 +43,32 @@ class OpenGLWindow:
         self.update_speeds()
 
     def zoom_in(self):
-        self.fov -= 15
-        if self.fov < 0:
-            self.fov = 0
+        self.fov -= 1
+        if self.fov < 1:
+            self.fov = 1
 
     def zoom_out(self):
-        self.fov += 15
+        self.fov += 1
         if self.fov > 360:
             self.fov = 360
+
+    def navigate_left(self):
+        self.camera_target[0] += 0.1
+
+    def navigate_right(self):
+        self.camera_target[0] -= 0.1
+
+    def navigate_up(self):
+        self.camera_target[1] -= 0.1
+
+    def navigate_down(self):
+        self.camera_target[1] += 0.1
+
+    def navigate_back(self):
+        self.camera_target[2] -= 0.1
+
+    def navigate_front(self):
+        self.camera_target[2] += 0.1
 
     def setup_camera(self, shader):
         projection = pyrr.matrix44.create_perspective_projection(
