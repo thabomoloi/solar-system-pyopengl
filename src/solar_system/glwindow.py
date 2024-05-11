@@ -45,38 +45,22 @@ class OpenGLWindow:
         self.update_speeds()
 
     def zoom_in(self):
-        self.zoom_step -= 1
-        if self.zoom_step < 1:
-            self.zoom_step = 1
+        self.zoom_step -= 0.1
+        if self.zoom_step < 0.1:
+            self.zoom_step = 0.1
 
     def zoom_out(self):
-        self.zoom_step += 1
-
-    def navigate_left(self):
-        self.camera_target[0] += 0.1
-
-    def navigate_right(self):
-        self.camera_target[0] -= 0.1
-
-    def navigate_up(self):
-        self.camera_target[1] -= 0.1
-
-    def navigate_down(self):
-        self.camera_target[1] += 0.1
-
-    def navigate_back(self):
-        self.camera_target[2] -= 0.1
-
-    def navigate_front(self):
-        self.camera_target[2] += 0.1
+        self.zoom_step += 0.1
+        if self.zoom_step > 1:
+            self.zoom_step = 1
 
     def setup_camera(self, shader):
 
-        left = -10
-        right = 10
-        bottom = -10
-        top = 10
-        near = 0.1
+        left = -12 * self.zoom_step
+        right = 12 * self.zoom_step
+        bottom = -12 * self.zoom_step
+        top = 12 * self.zoom_step
+        near = 1
         far = 100
         projection = pyrr.matrix44.create_orthogonal_projection(
             left, right, bottom, top, near, far

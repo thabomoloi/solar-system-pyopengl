@@ -89,6 +89,7 @@ class Planet(MovingObject):
         orbit_period: float = 0,
         inclination_angle: float = 0,
         rotation_period: float = 0,
+        rotation_direction: Literal["anticlockwise", "clockwise"] = "anticlockwise",
     ) -> None:
         super().__init__(
             shader,
@@ -99,6 +100,7 @@ class Planet(MovingObject):
             orbit_period,
             inclination_angle,
             rotation_period,
+            rotation_direction,
         )
 
 
