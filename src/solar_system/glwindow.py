@@ -7,6 +7,7 @@ from OpenGL.GL.shaders import compileProgram, compileShader
 import numpy as np
 import pyrr
 from solar_system.planet_scene.planets import Sun, Moon, Planet, MovingObject
+from solar_system.planet_scene.stars import Stars
 
 
 class OpenGLWindow:
@@ -16,6 +17,7 @@ class OpenGLWindow:
         self.sun = None
         self.planets = []
         self.moon = None
+        self.stars = None
         self.speed = 0.01
         self.speed_step = 0.01
         self.camera_target = pyrr.Vector3([0.0, 0.0, 0.0])
@@ -24,9 +26,9 @@ class OpenGLWindow:
         self.camera_pitch = 0.0  # Initial pitch angle
         self.camera_yaw = 0.0  # Initial yaw angle
         self.camera_roll = 0.0
-        self.fov = 90
-        self.screen_width = (0,)
-        self.screen_height = (0,)
+        self.zoom_step = 1
+        self.screen_width = 0
+        self.screen_height = 0
 
     def update_speeds(self):
         Sun.set_speed(self.speed)
@@ -43,14 +45,12 @@ class OpenGLWindow:
         self.update_speeds()
 
     def zoom_in(self):
-        self.fov -= 1
-        if self.fov < 1:
-            self.fov = 1
+        self.zoom_step -= 1
+        if self.zoom_step < 1:
+            self.zoom_step = 1
 
     def zoom_out(self):
-        self.fov += 1
-        if self.fov > 360:
-            self.fov = 360
+        self.zoom_step += 1
 
     def navigate_left(self):
         self.camera_target[0] += 0.1
@@ -71,13 +71,17 @@ class OpenGLWindow:
         self.camera_target[2] += 0.1
 
     def setup_camera(self, shader):
-        projection = pyrr.matrix44.create_perspective_projection(
-            fovy=self.fov,
-            aspect=self.screen_width / self.screen_height,
-            near=0.1,
-            far=75,
-            dtype=np.float32,
+
+        left = -10
+        right = 10
+        bottom = -10
+        top = 10
+        near = 0.1
+        far = 100
+        projection = pyrr.matrix44.create_orthogonal_projection(
+            left, right, bottom, top, near, far
         )
+
         glUniformMatrix4fv(
             glGetUniformLocation(self.shader, "projection"),
             1,
@@ -186,6 +190,7 @@ class OpenGLWindow:
         self.setup_camera(self.shader)
 
         self.sun = Sun(self.shader, SIZES["SUN"])
+        self.stars = Stars(self.shader)
 
         for name, details in PLANETS.items():
             planet = Planet(self.shader, *details)
@@ -200,6 +205,7 @@ class OpenGLWindow:
 
         self.setup_camera(self.shader)
 
+        self.stars.render()
         self.sun.render()
         self.moon.render()
         for planet in self.planets:
@@ -213,5 +219,6 @@ class OpenGLWindow:
         glDeleteVertexArrays(1, (self.vao,))
         self.sun.cleanup()
         self.moon.cleanup()
+        self.stars.cleanup()
         for planet in self.planets:
             planet.cleanup()
