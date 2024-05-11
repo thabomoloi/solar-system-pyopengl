@@ -12,8 +12,8 @@ def main():
     info = pg.display.Info()
 
     # Get screen width and height
-    screen_width = info.current_w - 128
     screen_height = info.current_h - 128
+    screen_width = screen_height
 
     window = OpenGLWindow()
     window.initGL(screen_width=screen_width, screen_height=screen_height)
