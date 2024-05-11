@@ -14,7 +14,7 @@ SIZE_VECTORS = {
     "SATURN": [0.4] * 3,
     "URANUS": [0.35] * 3,
     "NEPTUNE": [0.35] * 3,
-    "MOON": [0.15] * 3,
+    "MOON": [0.1] * 3,
     "STARS": [15] * 3,
 }
 

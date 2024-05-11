@@ -26,9 +26,9 @@ class OpenGLWindow:
         self.camera_pitch = 0.0  # Initial pitch angle
         self.camera_yaw = 0.0  # Initial yaw angle
         self.camera_roll = 0.0
-        self.zoom_step = 1
         self.screen_width = 0
         self.screen_height = 0
+        self.fovy = 45
 
     def update_speeds(self):
         Sun.set_speed(self.speed)
@@ -45,25 +45,18 @@ class OpenGLWindow:
         self.update_speeds()
 
     def zoom_in(self):
-        self.zoom_step -= 0.1
-        if self.zoom_step < 0.1:
-            self.zoom_step = 0.1
+        self.fovy -= 1
+        if self.fovy <= 0:
+            self.fovy = 1
 
     def zoom_out(self):
-        self.zoom_step += 0.1
-        if self.zoom_step > 1:
-            self.zoom_step = 1
+        self.fovy += 1
+        if self.fovy > 120:
+            self.fovy = 120
 
     def setup_camera(self, shader):
-
-        left = -12 * self.zoom_step
-        right = 12 * self.zoom_step
-        bottom = -12 * self.zoom_step
-        top = 12 * self.zoom_step
-        near = 1
-        far = 100
-        projection = pyrr.matrix44.create_orthogonal_projection(
-            left, right, bottom, top, near, far
+        projection = pyrr.matrix44.create_perspective_projection(
+            self.fovy, self.screen_width / self.screen_height, 1.0, 60.0
         )
 
         glUniformMatrix4fv(
