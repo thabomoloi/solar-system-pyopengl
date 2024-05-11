@@ -21,11 +21,11 @@ def main():
     paused = False
 
     clock = pg.time.Clock()  # Create a clock object to control the frame rate
+
+    prev_speed = []
     while running:
         clock.tick(60)
-
-        if not paused:
-            window.render()
+        window.render()
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -51,18 +51,14 @@ def main():
                     window.increase_speed()
                 elif event.key == pg.K_DOWN:
                     window.decrease_speed()
-                elif event.key == pg.K_LEFT and pg.key.get_mods() & pg.KMOD_CTRL:
-                    window.navigate_down()
-                elif event.key == pg.K_RIGHT and pg.key.get_mods() & pg.KMOD_CTRL:
-                    window.navigate_up()
-                elif event.key == pg.K_LEFT and pg.key.get_mods() & pg.KMOD_SHIFT:
-                    window.navigate_back()
-                elif event.key == pg.K_RIGHT and pg.key.get_mods() & pg.KMOD_SHIFT:
-                    window.navigate_front()
-                elif event.key == pg.K_LEFT:
-                    window.navigate_left()
-                elif event.key == pg.K_RIGHT:
-                    window.navigate_right()
+                elif event.key == pg.K_SPACE:
+                    if not paused:
+                        prev_speed.append(window.speed)
+                        window.speed = 0
+                        window.update_speeds()
+                    elif not paused and prev_speed:
+                        window.speed = prev_speed.pop()
+                    paused = not paused
 
     pg.quit()
 
