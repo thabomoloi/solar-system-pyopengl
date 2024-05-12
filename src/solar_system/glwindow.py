@@ -96,6 +96,14 @@ class OpenGLWindow:
             view_matrix,
         )
 
+        glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, camera_position)
+        glUniform3fv(glGetUniformLocation(shader, "lightPos"), 1, [0, 0, 0])
+        glUniform3fv(
+            glGetUniformLocation(shader, "lightColor"),
+            1,
+            [0.996078431372549, 0.9411764705882353, 0.5411764705882353],
+        )
+
     def rotate_camera(
         self,
         axis: Literal["x", "y", "z"],
@@ -182,8 +190,12 @@ class OpenGLWindow:
 
         self.setup_camera(self.shader)
 
+        glUniform1f(glGetUniformLocation(self.shader, "object"), 0.0)
         self.stars.render()
+        glUniform1f(glGetUniformLocation(self.shader, "object"), 1.0)
         self.sun.render()
+        glUniform1f(glGetUniformLocation(self.shader, "object"), 2.0)
+
         self.moon.render()
         for planet in self.planets:
             planet.render()

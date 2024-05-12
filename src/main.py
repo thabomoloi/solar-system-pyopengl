@@ -56,8 +56,9 @@ def main():
                         prev_speed.append(window.speed)
                         window.speed = 0
                         window.update_speeds()
-                    elif not paused and prev_speed:
+                    elif paused and prev_speed:
                         window.speed = prev_speed.pop()
+                        window.update_speeds()
                     paused = not paused
 
     pg.quit()

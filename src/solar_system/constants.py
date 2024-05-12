@@ -5,7 +5,7 @@ CUBE_FILE = "./resources/cube.obj"
 
 
 SIZE_VECTORS = {
-    "SUN": [0.9] * 3,
+    "SUN": [0.75] * 3,
     "MERCURY": [0.2] * 3,
     "VENUS": [0.3] * 3,
     "EARTH": [0.325] * 3,
