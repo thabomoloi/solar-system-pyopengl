@@ -102,13 +102,13 @@ class OpenGLWindow:
         glUniform3fv(
             glGetUniformLocation(shader, "sunColor"),
             1,
-            [0.996078431372549, 0.9411764705882353, 0.5411764705882353],
+            [0.9686274509803922, 0.996078431372549, 0.9058823529411765],
         )
 
         glUniform3fv(
             glGetUniformLocation(shader, "lightColor"),
             1,
-            [0.13333333333333333, 0.8274509803921568, 0.9333333333333333],
+            [0.9372549019607843, 0.26666666666666666, 0.26666666666666666],
         )
 
         first_light_position = pyrr.Matrix44.from_y_rotation(

@@ -10,7 +10,7 @@ uniform samplerCube surfaceTexture;
 uniform float object;
 
 // PRM reflectance coefficents
-const float ambientStrength = 0.5;
+const float ambientStrength = 0.1;
 const float diffuseStrength = 0.8;
 const float specularStrength = 0.5;
 const float shininess = 32.0;
