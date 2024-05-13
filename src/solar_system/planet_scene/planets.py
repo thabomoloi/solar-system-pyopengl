@@ -53,10 +53,6 @@ class MovingObject(CelestialObject):
         return np.array([x, y, z])
 
     def render(self):
-        # Set the lightPos uniform to (0,0,0)
-        light_pos = [0.0, 0.0, 0.0]
-        glUniform3fv(glGetUniformLocation(self.sphere_shader, "lightPos"), 1, light_pos)
-
         if self.rotation_direction == "anticlockwise":
             self.rotation_angle -= 2 * np.pi * MovingObject.speed / self.rotation_period
             if self.rotation_angle < -2 * np.pi:
