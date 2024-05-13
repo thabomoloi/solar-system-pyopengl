@@ -29,6 +29,7 @@ class OpenGLWindow:
         self.screen_width = 0
         self.screen_height = 0
         self.fovy = 45
+        self.first_light_angle = 0
 
     def update_speeds(self):
         Sun.set_speed(self.speed)
@@ -97,12 +98,31 @@ class OpenGLWindow:
         )
 
         glUniform3fv(glGetUniformLocation(shader, "viewPos"), 1, camera_position)
-        glUniform3fv(glGetUniformLocation(shader, "lightPos"), 1, [0, 0, 0])
+        glUniform3fv(glGetUniformLocation(shader, "sunPos"), 1, [0, 0, 0])
         glUniform3fv(
-            glGetUniformLocation(shader, "lightColor"),
+            glGetUniformLocation(shader, "sunColor"),
             1,
             [0.996078431372549, 0.9411764705882353, 0.5411764705882353],
         )
+
+        glUniform3fv(
+            glGetUniformLocation(shader, "lightColor"),
+            1,
+            [0.13333333333333333, 0.8274509803921568, 0.9333333333333333],
+        )
+
+        first_light_position = pyrr.Matrix44.from_y_rotation(
+            self.first_light_angle
+        ) * pyrr.Vector3([8, 8, 8])
+        glUniform3fv(
+            glGetUniformLocation(shader, "lightPos"),
+            1,
+            first_light_position,
+        )
+
+        self.first_light_angle += np.pi / 360
+        if self.first_light_angle > 2 * np.pi:
+            self.first_light_angle -= 2 * np.pi
 
     def rotate_camera(
         self,

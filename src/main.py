@@ -22,7 +22,6 @@ def main():
 
     clock = pg.time.Clock()  # Create a clock object to control the frame rate
 
-    prev_speed = []
     while running:
         clock.tick(60)
         window.render()
@@ -53,12 +52,10 @@ def main():
                     window.decrease_speed()
                 elif event.key == pg.K_SPACE:
                     if not paused:
-                        prev_speed.append(window.speed)
                         window.speed = 0
                         window.update_speeds()
-                    elif paused and prev_speed:
-                        window.speed = prev_speed.pop()
-                        window.update_speeds()
+                    else:
+                        window.increase_speed()
                     paused = not paused
 
     pg.quit()
