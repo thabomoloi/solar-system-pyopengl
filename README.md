@@ -62,3 +62,7 @@ All models are textured.
 * `CTRL + Y`: Rotate camera about $y$-axis counterclockwise
 * `Z`: Rotate camera about $z$-axis clockwise
 * `CTRL + z`: Rotate camera about $z$-axis counterclockwise
+
+
+## Credits
+Lighting shaders adopted from <https://learnopengl.com/Lighting/Basic-Lighting>.
